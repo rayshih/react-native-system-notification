@@ -20,6 +20,7 @@ import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.LifecycleEventListener;
+import com.facebook.react.bridge.ActivityEventListener;
 
 import io.neson.react.notification.NotificationManager;
 import io.neson.react.notification.Notification;
@@ -41,7 +42,7 @@ import android.util.Log;
  *
  * Provides JS accessible API, bridge Java and JavaScript.
  */
-public class NotificationModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
+public class NotificationModule extends ReactContextBaseJavaModule implements LifecycleEventListener, ActivityEventListener {
     final static String PREFERENCES_KEY = "ReactNativeSystemNotification";
     public Context mContext = null;
     public NotificationManager mNotificationManager = null;
@@ -60,6 +61,7 @@ public class NotificationModule extends ReactContextBaseJavaModule implements Li
         this.mContext = reactContext;
         this.mNotificationManager = (NotificationManager) new NotificationManager(reactContext);
         reactContext.addLifecycleEventListener(this);
+        reactContext.addActivityEventListener(this);
 
         listenNotificationEvent();
     }
@@ -243,6 +245,24 @@ public class NotificationModule extends ReactContextBaseJavaModule implements Li
         Log.i("ReactSystemNotification", "NotificationModule: sendEvent (to JS): " + eventName);
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {}
+
+    @Override
+    public void onNewIntent(Intent intent) {
+        if (intent != null && intent.getExtras() != null) {
+            Bundle bundle = intent.getExtras();
+            if (bundle != null) {
+                WritableMap params = Arguments.createMap();
+                params.putInt("notificationID", bundle.getInt("initialSysNotificationId"));
+                params.putString("action", bundle.getString("initialSysNotificationAction"));
+                params.putString("payload", bundle.getString("initialSysNotificationPayload"));
+                sendEvent("sysModuleNotificationClick", params);
+            }
+        }
+    }
+
+    @Override
     public void onHostResume() {
         final Activity activity = getCurrentActivity();
         if (activity != null && activity.getIntent() != null) {
@@ -259,7 +279,7 @@ public class NotificationModule extends ReactContextBaseJavaModule implements Li
                 Bundle extras = intent.getExtras();
                 Integer initialSysNotificationId = extras.getInt("initialSysNotificationId");
                 if (initialSysNotificationId != null) {
-                    notificationID = extras.getInt("initialSysNotificationId");
+                    notificationID = initialSysNotificationId;
                     action = extras.getString("initialSysNotificationAction");
                     payload = extras.getString("initialSysNotificationPayload");
                  }
@@ -269,7 +289,7 @@ public class NotificationModule extends ReactContextBaseJavaModule implements Li
             Log.d("Notification", "[NotificationModule][action] " + action);
             Log.d("Notification", "[NotificationModule][payload] " + payload);
 
-            if (action != null) {
+            if (payload != null) {
                 WritableMap params = Arguments.createMap();
                 params.putInt("notificationID", notificationID);
                 params.putString("action", action);
@@ -279,7 +299,10 @@ public class NotificationModule extends ReactContextBaseJavaModule implements Li
         }
     }
 
+    @Override
     public void onHostPause() {}
+
+    @Override
     public void onHostDestroy() {}
 
     private String convertJSON(Bundle bundle) {

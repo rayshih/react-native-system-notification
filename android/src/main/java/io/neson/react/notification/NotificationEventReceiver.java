@@ -39,7 +39,7 @@ public class NotificationEventReceiver extends BroadcastReceiver {
             launchIntent.putExtra("initialSysNotificationId", extras.getInt(NOTIFICATION_ID));
             launchIntent.putExtra("initialSysNotificationAction", extras.getString(ACTION));
             launchIntent.putExtra("initialSysNotificationPayload", extras.getString(PAYLOAD));
-            launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
             context.startActivity(launchIntent);
             Log.i("ReactSystemNotification", "NotificationEventReceiver: Launching: " + packageName);

@@ -248,7 +248,6 @@ public class NotificationModule extends ReactContextBaseJavaModule implements Li
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {}
 
-    @Override
     public void onNewIntent(Intent intent) {
         if (intent != null && intent.getExtras() != null) {
             Bundle bundle = intent.getExtras();

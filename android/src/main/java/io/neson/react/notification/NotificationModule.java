@@ -273,6 +273,7 @@ public class NotificationModule extends ReactContextBaseJavaModule implements Li
             // Bundle from GCM module will wrap by "bundle"
             if (intent.getBundleExtra("bundle") != null) {
                 payload = convertJSON(intent.getBundleExtra("bundle"));
+                intent.removeExtra("bundle");
             } else if (intent.getExtras() != null) {
                 // Data from Notification module will wrap by "initialSysNotificationId", "initialSysNotificationId", "initialSysNotificationPayload"
                 Bundle extras = intent.getExtras();
@@ -281,6 +282,10 @@ public class NotificationModule extends ReactContextBaseJavaModule implements Li
                     notificationID = initialSysNotificationId;
                     action = extras.getString("initialSysNotificationAction");
                     payload = extras.getString("initialSysNotificationPayload");
+
+                    intent.removeExtra("initialSysNotificationId");
+                    intent.removeExtra("initialSysNotificationAction");
+                    intent.removeExtra("initialSysNotificationPayload");
                  }
             }
 

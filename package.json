@@ -16,6 +16,6 @@
     "notification"
   ],
   "peerDependencies": {
-    "react-native": ">=0.29.0"
+    "react-native": ">=0.42.0"
   }
 }
